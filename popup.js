@@ -153,11 +153,19 @@ async function fetchMovieFromRadarr(radarrUrl, apiKey, imdbId) {
   }
 
   const data = await response.json();
-  if (!data || data.length === 0) {
+
+  if (!data) {
     throw new Error("Radarr did not return any movie data for this IMDB ID.");
   }
 
-  return data[0];
+  if (Array.isArray(data)) {
+    if (data.length === 0) {
+      throw new Error("Radarr did not return any movie data for this IMDB ID.");
+    }
+    return data[0];
+  }
+
+  return data;
 }
 
 async function addMovieToRadarr({ movie, profileId, config }) {
