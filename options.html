@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radarr Extension Options</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0 auto;
+      max-width: 520px;
+      padding: 24px;
+      color: #1f2933;
+      line-height: 1.5;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input, textarea, select, button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      background-color: #2563eb;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 10px 14px;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #475569;
+      margin-top: -12px;
+      margin-bottom: 16px;
+    }
+
+    #status {
+      font-weight: 600;
+    }
+
+    .error {
+      color: #dc2626;
+    }
+
+    .success {
+      color: #16a34a;
+    }
+  </style>
+</head>
+<body>
+  <h1>Radarr Settings</h1>
+  <form id="optionsForm">
+    <label for="radarrUrl">Radarr URL</label>
+    <input type="url" id="radarrUrl" placeholder="https://radarr.example.com" required />
+
+    <label for="radarrApiKey">Radarr API key</label>
+    <input type="password" id="radarrApiKey" placeholder="API key" required />
+    <p class="hint">Find this under Settings → General → Security in Radarr.</p>
+
+    <label for="radarrRootFolder">Default root folder path</label>
+    <input type="text" id="radarrRootFolder" placeholder="/data/movies" required />
+    <p class="hint">Movies sent from IMDB will land in this Radarr root folder.</p>
+
+    <label for="qualityProfiles">Quality profiles</label>
+    <textarea id="qualityProfiles" placeholder="Ultra Lite 4K:1&#10;HD:3"></textarea>
+    <p class="hint">Enter one profile per line as <strong>Name:ID</strong>. The IDs come from Radarr → Settings → Quality.</p>
+
+    <label for="defaultQualityProfile">Default quality profile</label>
+    <select id="defaultQualityProfile">
+      <option value="">None</option>
+    </select>
+    <p class="hint">Optional. Selected by default in the popup.</p>
+
+    <button type="submit">Save Settings</button>
+    <p id="status"></p>
+  </form>
+  <script src="options.js"></script>
+</body>
+</html>
