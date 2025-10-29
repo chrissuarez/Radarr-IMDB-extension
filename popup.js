@@ -88,6 +88,51 @@ function getStoredConfig() {
   });
 }
 
+function openOptionsPage() {
+  return new Promise((resolve, reject) => {
+    if (chrome.runtime.openOptionsPage) {
+      chrome.runtime.openOptionsPage(() => {
+        const lastError = chrome.runtime.lastError;
+        if (lastError) {
+          reject(new Error(lastError.message));
+          return;
+        }
+        resolve();
+      });
+    } else {
+      const optionsUrl = chrome.runtime.getURL("options.html");
+      chrome.tabs.create({ url: optionsUrl }, (tab) => {
+        const lastError = chrome.runtime.lastError;
+        if (lastError) {
+          reject(new Error(lastError.message));
+          return;
+        }
+        if (!tab) {
+          reject(new Error("Could not open options page."));
+          return;
+        }
+        resolve();
+      });
+    }
+  });
+}
+
+async function handleMissingConfiguration(message) {
+  setMessage(`${message} Opening extension settings…`, true);
+  sendButtonEl.disabled = true;
+  try {
+    await openOptionsPage();
+  } catch (error) {
+    console.error(error);
+    setMessage(`${message} Please open the extension options and finish setup.`, true);
+    return;
+  }
+
+  setTimeout(() => {
+    window.close();
+  }, 700);
+}
+
 async function initialise() {
   try {
     setMessage("Checking current tab…");
@@ -119,12 +164,16 @@ async function initialise() {
     const { radarrUrl, radarrApiKey, radarrRootFolder, qualityProfiles } = extensionConfig;
 
     if (!radarrUrl || !radarrApiKey || !radarrRootFolder) {
-      setMessage("Set your Radarr URL, API key, and root folder in the extension options.", true);
+      await handleMissingConfiguration(
+        "Set your Radarr URL, API key, and root folder in the extension options."
+      );
       return;
     }
 
     if (!Array.isArray(qualityProfiles) || qualityProfiles.length === 0) {
-      setMessage("Add at least one quality profile in the extension options.", true);
+      await handleMissingConfiguration(
+        "Add at least one quality profile in the extension options."
+      );
       return;
     }
 
