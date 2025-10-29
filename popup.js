@@ -199,7 +199,35 @@ async function addMovieToRadarr({ movie, profileId, config }) {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Radarr responded with ${response.status}: ${errorText}`);
+    let message = `Radarr responded with ${response.status}`;
+
+    if (errorText) {
+      try {
+        const parsed = JSON.parse(errorText);
+
+        if (Array.isArray(parsed)) {
+          const existsError = parsed.find(
+            (item) => item?.errorCode === "MovieExistsValidator"
+          );
+
+          if (existsError) {
+            message = "Radarr reports this movie already exists in your library.";
+          } else if (parsed[0]?.errorMessage) {
+            message = `${message}: ${parsed[0].errorMessage}`;
+          } else {
+            message = `${message}: ${errorText}`;
+          }
+        } else if (parsed?.message) {
+          message = `${message}: ${parsed.message}`;
+        } else {
+          message = `${message}: ${errorText}`;
+        }
+      } catch (_parseError) {
+        message = `${message}: ${errorText}`;
+      }
+    }
+
+    throw new Error(message);
   }
 
   return response.json();
